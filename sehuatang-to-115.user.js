@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         98tang (sehuatang) 磁力/ED2K 推送到 115 网盘
 // @namespace    http://tampermonkey.net/
-// @version      1.1.1
+// @version      1.1.2
 // @description  自动检测复制的 magnet/ed2k 链接，一键推送到 115 网盘离线下载
 // @author       You
 // @match        *://*.sehuatang.net/*
@@ -16,6 +16,7 @@
 // @connect      115.com
 // @connect      my.115.com
 // @connect      webapi.115.com
+// @license      MIT
 // @run-at       document-start
 // ==/UserScript==
 
@@ -69,6 +70,24 @@
 	// 设置配置
 	function setConfig(key, value) {
 		GM_setValue(key, value)
+	}
+
+	// 展开面板
+	function expandPanel() {
+		const panel = document.getElementById('push115-panel')
+		if (panel && panel.classList.contains('minimized')) {
+			panel.classList.remove('minimized')
+			// 不保存状态，因为这是临时展开
+		}
+	}
+
+	// 折叠面板
+	function collapsePanel() {
+		const panel = document.getElementById('push115-panel')
+		if (panel && !panel.classList.contains('minimized')) {
+			panel.classList.add('minimized')
+			setConfig(CONFIG_KEYS.PANEL_MINIMIZED, true)
+		}
 	}
 
 	// ========== 115 网盘 API ==========
@@ -1088,6 +1107,9 @@
 		})
 
 		document.getElementById('push115-modal-confirm').addEventListener('click', async () => {
+			// 展开面板以便查看任务进度
+			expandPanel()
+			
 			const confirmBtn = document.getElementById('push115-modal-confirm')
 			confirmBtn.disabled = true
 			confirmBtn.innerHTML = '<span class="push115-loading"></span>推送中...'
@@ -1111,6 +1133,11 @@
 						name: result.name || '',
 					}
 					monitorAndProcess(taskMeta)
+				} else {
+					// 如果没有自动处理任务，推送成功后延迟 3 秒折叠面板
+					setTimeout(() => {
+						collapsePanel()
+					}, 3000)
 				}
 			} catch (e) {
 				confirmBtn.disabled = false
@@ -1156,6 +1183,9 @@
 			if (attempts > maxAttempts) {
 				showStatus('error', '监控超时，请手动检查', 0)
 				setProcessingState(false)
+				setTimeout(() => {
+					collapsePanel()
+				}, 3000)
 				return
 			}
 
@@ -1191,6 +1221,9 @@
 					if (task.status === -1) {
 						showStatus('error', '离线任务失败', 0)
 						setProcessingState(false)
+						setTimeout(() => {
+							collapsePanel()
+						}, 3000)
 						return
 					}
 				} else {
@@ -1261,6 +1294,9 @@
 				if (!targetInfo.found) {
 					showStatus('warning', '未找到本次任务的文件夹，已跳过自动处理（避免扫描整个目录）', 0)
 					setProcessingState(false)
+					setTimeout(() => {
+						collapsePanel()
+					}, 3000)
 					return
 				}
 
@@ -1317,10 +1353,18 @@
 					showStatus('info', '处理完成，没有需要处理的内容')
 					setProcessingState(false)
 				}
+				// 任务处理完成后，延迟 3 秒折叠面板
+				setTimeout(() => {
+					collapsePanel()
+				}, 3000)
 			} catch (e) {
 				console.error('[处理] 失败:', e)
 				showStatus('error', '处理失败: ' + e.message)
 				setProcessingState(false)
+				// 任务处理失败后，延迟 3 秒折叠面板
+				setTimeout(() => {
+					collapsePanel()
+				}, 3000)
 			}
 		}
 
