@@ -1107,9 +1107,6 @@
 		})
 
 		document.getElementById('push115-modal-confirm').addEventListener('click', async () => {
-			// 展开面板以便查看任务进度
-			expandPanel()
-			
 			const confirmBtn = document.getElementById('push115-modal-confirm')
 			confirmBtn.disabled = true
 			confirmBtn.innerHTML = '<span class="push115-loading"></span>推送中...'
@@ -1117,6 +1114,8 @@
 			try {
 				const result = await api.addOfflineTask(linkUrl)
 				overlay.remove()
+				// 展开面板以便查看任务进度（在确认弹窗关闭后）
+				expandPanel()
 				showStatus('success', `✅ 推送成功: ${result.name || '离线任务已添加'}`)
 				GM_notification({
 					title: '115 离线下载',
