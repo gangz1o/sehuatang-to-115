@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>115 Offline Helper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="push115-panel" id="push115-panel">
+    <div class="push115-header">
+      <span class="push115-header-title" id="push115-title">115离线下载助手</span>
+      <div class="push115-header-btns">
+        <a class="push115-header-btn" href="https://github.com/gangz1o/sehuatang-to-115" target="_blank" title="Github">
+          <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="push115-tabs">
+      <div class="push115-tab active" data-tab="home">主页</div>
+      <div class="push115-tab" data-tab="settings">设置</div>
+    </div>
+
+    <div class="push115-content">
+      <!-- Home Tab -->
+      <div class="push115-tab-content active" id="push115-tab-home">
+        <div id="push115-status-area"></div>
+        <div id="push115-progress" class="push115-progress hidden">
+          <div class="push115-progress-text" id="push115-progress-text">处理中...</div>
+          <div class="push115-progress-track">
+            <div class="push115-progress-bar" id="push115-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="push115-section">
+          <label class="push115-label" id="label-save-path">默认保存路径 (CID):</label>
+          <input type="text" class="push115-input" id="push115-path-combo" placeholder="例如: 0 或 22987888062956554">
+          <div class="push115-hint" id="hint-cid">提示: 直接填写 CID，或填写 "文件夹名:CID" 格式。根目录CID为0</div>
+        </div>
+
+        <div class="push115-divider"></div>
+
+        <div class="push115-section">
+          <div class="push115-checkbox-group">
+            <input type="checkbox" class="push115-checkbox" id="push115-auto-delete">
+            <label class="push115-checkbox-label" for="push115-auto-delete" id="label-auto-delete">自动删除小文件</label>
+          </div>
+        </div>
+
+        <div class="push115-section" id="push115-delete-section" style="display: none;">
+          <div class="push115-row">
+            <span id="label-delete-pre">删除小于</span>
+            <input type="number" class="push115-input" id="push115-delete-size" style="width: 80px;" min="1" value="100">
+            <span id="label-delete-post">MB 的文件</span>
+          </div>
+        </div>
+
+        <div class="push115-section">
+          <div class="push115-checkbox-group">
+            <input type="checkbox" class="push115-checkbox" id="push115-auto-organize">
+            <label class="push115-checkbox-label" for="push115-auto-organize" id="label-auto-organize">自动整理视频文件夹</label>
+          </div>
+          <div class="push115-hint" id="hint-organize">自动将散乱的视频文件整理到同名文件夹中</div>
+        </div>
+
+        <div class="push115-section push115-btn-group">
+          <button class="push115-btn push115-btn-primary push115-btn-full" id="push115-check-login">
+            检查 115 登录状态
+          </button>
+          <button class="push115-btn push115-btn-secondary push115-btn-full" id="push115-login-btn">
+            <img src="https://115.com/favicon.ico" style="width: 16px; height: 16px; border-radius: 4px;">扫码登录 115
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="push115-tab-content" id="push115-tab-settings">
+        <div class="push115-section">
+          <label class="push115-label">语言 / Language</label>
+          <div class="push115-select-wrapper">
+            <select id="push115-language-select" class="push115-select">
+              <option value="zh-CN">简体中文</option>
+              <option value="en-US">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="push115-section">
+          <label class="push115-label">主题 / Theme</label>
+          <div class="push115-select-wrapper">
+            <select id="push115-theme-select" class="push115-select">
+              <option value="auto">跟随系统</option>
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="push115-section">
+          <label class="push115-label">启用域名 (一行一个)</label>
+          <textarea id="push115-domains-input" class="push115-textarea" placeholder="不填则在所有页面显示面板"></textarea>
+          <div class="push115-hint">支持域名匹配，不包含协议 (http/https)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
